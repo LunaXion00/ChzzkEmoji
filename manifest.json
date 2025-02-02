@@ -5,31 +5,14 @@
     "description": "치지직 채팅창에서 이모티콘을 클릭하면 정보를 표시합니다.",
     "permissions": ["activeTab", "storage"],
     "host_permissions": [
-      "https://chzzk.naver.com/*"
+      "https://chzzk.naver.com/live/*"
     ],
     "content_scripts": [
       {
         "matches": ["https://chzzk.naver.com/live/*"],
         "js": ["content.js"],
-        "css": ["styles.css"]
+        "css": ["styles.css"],
+        "run_at": "document_end"
       }
-    ],
-    "background": {
-      "service_worker": "background.js"
-    },
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "icons/icon16.png",
-        "32":"icons/icon32.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
-      }
-    },
-    "icons": {
-        "16": "/images/icons8-color-16.png",
-        "32": "/images/icons8-color-32.png",
-        "48": "/images/icons8-color-48.png",
-        "128": "/images/icons8-color-128.png"
-    }
+    ]
   }
