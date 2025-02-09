@@ -5,11 +5,12 @@
     "description": "치지직 채팅창에서 이모티콘을 클릭하면 정보를 표시합니다.",
     "permissions": ["activeTab", "storage"],
     "host_permissions": [
-      "https://chzzk.naver.com/live/*"
+      "https://chzzk.naver.com/*",
+      "https://api.chzzk.naver.com/*"
     ],
     "content_scripts": [
       {
-        "matches": ["https://chzzk.naver.com/live/*"],
+        "matches": ["https://chzzk.naver.com/*"],
         "js": ["content.js"],
         "css": ["styles.css"],
         "run_at": "document_end"
