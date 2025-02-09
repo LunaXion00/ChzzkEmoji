@@ -3,6 +3,11 @@ function getChatContainer() {
     return document.querySelector("#aside-chatting [class*='live_chatting_list_wrapper__']");
 }
 
+//다크모드 활성화 여부
+function isDarkMode(){
+    return document.documentElement.classList.contains('theme_dark');
+}
+
 // 채팅창에서 이모티콘 클릭 감지 
 function handleEmojiClick(event) {
     const clickedElement = event.target;
@@ -75,21 +80,7 @@ async function showEmojiTooltip(event, emojiInfo) {
 
     const tooltip = document.createElement("div");
     tooltip.classList.add("emoji-tooltip");
-    
-    // 기본 스타일 유지
-    tooltip.style.position = "fixed";
-    tooltip.style.background = "#2a2a2a";
-    tooltip.style.color = "white";
-    tooltip.style.padding = "12px";
-    tooltip.style.borderRadius = "8px";
-    tooltip.style.zIndex = "10000";
-    tooltip.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
-    tooltip.style.display = "flex";
-    tooltip.style.gap = "10px";
-    tooltip.style.alignItems = "center";
-    tooltip.style.maxWidth = "300px";
-    tooltip.style.maxHeight = "150px";
-    tooltip.style.overflowY = "auto";
+
     // 뷰포트 경계 계산
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -126,19 +117,9 @@ async function showEmojiTooltip(event, emojiInfo) {
 
     // 닫기 버튼 생성
     const closeButton = document.createElement("div");
+    closeButton.classList.add("close-button");
     closeButton.innerHTML = "×";
-    closeButton.style.cssText = `
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        cursor: pointer;
-        font-size: 18px;
-        color: #fff;
-        padding: 2px 8px;
-        border-radius: 50%;
-        transition: background 0.2s;
-    `;
-    
+
     // 닫기 버튼 호버 효과
     closeButton.addEventListener('mouseenter', () => {
         closeButton.style.background = 'rgba(255,255,255,0.1)';
@@ -147,22 +128,32 @@ async function showEmojiTooltip(event, emojiInfo) {
         closeButton.style.background = 'transparent';
     });
 
+    if (isDarkMode()) {
+        tooltip.classList.add("dark-mode"); // 다크모드 적용
+        closeButton.classList.add("dark-mode");
+    } else {
+        tooltip.classList.add("white-mode"); // 다크모드 미적용
+        closeButton.classList.add("white-mode");
+    }
+
     // 닫기 버튼 클릭 핸들러
     const removeTooltip = () => {
         tooltip.remove();
     };
     closeButton.addEventListener('click', removeTooltip);
 
-
+    tooltip.appendChild(closeButton);
+    tooltip.appendChild(contentContainer);
+    document.body.appendChild(tooltip);
+    
     try {
         const channelInfo = await fetchChannelInfo(emojiInfo.channelId);
         
         if (emojiInfo.type === "chzzk-emoji") {
             tooltip.innerHTML = `
-                <img src="${emojiInfo.src}" 
-                     style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                <img src="${emojiInfo.src}" class="emoji-image">
                 <div>
-                    <div style="font-size:0.9em; color:#ccc; margin-top:4px;">
+                    <div class="emoji-type">
                         치지직 공식 이모티콘
                     </div>
                 </div>
@@ -170,26 +161,18 @@ async function showEmojiTooltip(event, emojiInfo) {
         } else {
             tooltip.innerHTML = `
                 ${channelInfo?.image ? `
-                    <img src="${channelInfo.image}" 
-                         style="width:40px; height:40px; border-radius:50%; object-fit:cover;">`
-                    : '<div style="width:40px; height:40px; background:#555; border-radius:50%;"></div>'}
-                <div>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="font-weight:600;">${channelInfo?.name}</span>
+                    <img src="${channelInfo.image}" class="emoji-image">`
+                    : '<div class="emoji-placeholder"></div>'}
+                    <div class="emoji-info">
+                        <div class = "channel-name">${channelInfo?.name}</div>
+                        <div class="emoji-type">구독자 전용 이모티콘</div>
                     </div>
-                    <div style="font-size:0.9em; color:#ccc; margin-top:4px;">
-                        ${'구독자 전용 이모티콘'}
-                    </div>
-                </div>
-            `;
+                `;
         }
     } catch (error) {
-        tooltip.innerHTML = '⚠️ 채널 정보를 불러올 수 없습니다';
+        tooltip.innerHTML = '<div class="error-message"> 채널 정보를 불러올 수 없습니다</div>';
     }
     tooltip.prepend(closeButton);
-    tooltip.appendChild(closeButton);
-    tooltip.appendChild(contentContainer);
-    document.body.appendChild(tooltip);
 }
 let mainObserver = null;
 let currentChatContainer = null;
